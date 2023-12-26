@@ -1,0 +1,47 @@
+import numpy as np
+from torch.utils.data import Dataset, DataLoader
+import torch
+
+
+class PretrainDataset(Dataset):
+    # 从一个或多个数据二进制文件中加载数据到numpy array中,支持memmap模式
+    def __init__(self, data_path_lst, max_length=256, memmap=False):
+        super().__init__()
+        #
+        if memmap:
+            with open(data_path_lst[0], 'r') as f:
+                # nbytes = f.seek(0, 2)这行代码是获取数据文件大小的方法。
+                # f为文件对象,f.seek(offset, whence)函数设置文件当前位置
+                nbytes = f.seek(0, 2)
+                flen = f.tell() // np.dtype('uint16').itemsize
+            self.data = np.memmap(data_path_lst[0], dtype=np.dtype('uint16'), shape=(flen // max_length, max_length))
+        else:
+            data_lst = []
+            for data_path in data_path_lst:
+                with open(data_path, 'rb') as f:
+                    data = np.fromfile(f, dtype=np.uint16)
+                    data_lst.append(data)
+            data = np.concatenate(data_lst)
+            data = data[:max_length * int(len(data) / max_length)]
+            # np.random.shuffle(data)
+            self.data = data.reshape(-1, max_length)
+        #
+        print("memmap:{} train data.shape:{}".format(memmap, self.data.shape))
+        print("downloading finished.....")
+
+    def __len__(self):
+        return self.data.shape[0]
+
+    # __getitem__方法按batch索引数据
+    def __getitem__(self, index: int):
+        #
+        sample = self.data[index]
+        X = np.array(sample[:-1]).astype(np.int64)
+        Y = np.array(sample[1:]).astype(np.int64)
+
+        return torch.from_numpy(X), torch.from_numpy(Y)
+
+
+#
+if __name__ == "__main__":
+    pass
