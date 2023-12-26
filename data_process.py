@@ -17,7 +17,7 @@ def process_firefly(data_dir, name):
         os.makedirs(save_dir)
 
     # 获得实际文件名
-    filename = "{}.bin".format(save_dir)
+    filename = "pretrain_data.bin"
     file_path = os.path.join(save_dir, filename)
 
     with open(file_path, 'wb') as binary_file:

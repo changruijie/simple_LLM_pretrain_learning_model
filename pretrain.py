@@ -90,10 +90,10 @@ def train_epoch(epoch):
             logger.info(
                     'Epoch:[{}/{}]({}/{}) loss:{:.3f} lr:{:.7f} epoch_Time:{}min:'.format(
                         epoch,
-                        max_epoch, 
-                        step, 
+                        max_epoch,
+                        step,
                         iter_per_epoch,
-                        loss.item(), 
+                        loss.item(),
                         optimizer.param_groups[-1]['lr'],
                         spend_time / (step+1) * iter_per_epoch // 60 - spend_time // 60))
 
@@ -213,13 +213,13 @@ if __name__ == "__main__":
     # config = {k: globals()[k] for k in config_keys}  # will be useful for logging
     # -----------------------------------------------------------------------------
 
-    save_dir =os.path.join(out_dir , '20230815_baike_pretrain')
+    save_dir = os.path.join(out_dir, 'firefly_pretrain')
     if not os.path.exists(save_dir): os.makedirs(save_dir)
-    logger = get_logger(os.path.join(save_dir,'log.log'))
+    logger = get_logger(os.path.join(save_dir, 'log.log'))
     # various inits, derived attributes, I/O setup
     # various inits, derived attributes, I/O setup
     ddp = int(os.environ.get("RANK", -1)) != -1  # is this a ddp run?
-    
+
     if ddp:
         # Check if the operating system is Windows
         if os.name == 'nt':
@@ -276,7 +276,7 @@ if __name__ == "__main__":
         batch_size=batch_size,
         pin_memory=False,
         drop_last=False,
-        shuffle=False,        
+        shuffle=False,
         num_workers=0 if os.name == 'nt' else 4,
         sampler=train_sampler
     )
@@ -300,7 +300,7 @@ if __name__ == "__main__":
     scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=max_epoch, T_mult=1, eta_min=1e-6, last_epoch=-1)
     iter_per_epoch = len(train_loader)
     warmup_epoch = 1
-    
+
     # compile the model
     if compile:
         print("compiling the model... (takes a ~minute)")
